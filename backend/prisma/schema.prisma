@@ -1,0 +1,31 @@
+// prisma/schema.prisma
+// This file defines the database models and structure
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// User model - stores user information
+model User {
+  id        Int     @id @default(autoincrement())
+  name      String
+  email     String  @unique  // Email must be unique
+  password  String  // Hashed password
+  tasks     Task[]  // One user can have many tasks (relationship)
+  createdAt DateTime @default(now())
+}
+
+// Task model - stores tasks for each user
+model Task {
+  id        Int     @id @default(autoincrement())
+  title     String
+  userId    Int     // Foreign key linking to User
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
