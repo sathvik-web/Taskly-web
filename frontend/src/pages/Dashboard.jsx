@@ -1,5 +1,3 @@
-// src/pages/Dashboard.jsx
-
 import TaskList from "../components/TaskList";
 import Navbar from "../components/Navbar";
 
@@ -11,7 +9,6 @@ export default function Dashboard() {
       <Navbar />
 
       <main className="max-w-5xl mx-auto px-4 py-10">
-        {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
             Welcome back{user?.name ? `, ${user.name}` : ""} 👋
@@ -21,10 +18,7 @@ export default function Dashboard() {
           </p>
         </div>
 
-        {/* Task Container */}
-        <div className="bg-white dark:bg-gray-800 text-gray-800 dark:text-white p-6 rounded-2xl shadow-lg transition">
-          <TaskList />
-        </div>
+        <TaskList />
       </main>
     </div>
   );

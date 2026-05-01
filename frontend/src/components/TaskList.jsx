@@ -43,7 +43,7 @@ export default function TaskList() {
   const handleDeleteTask = async (id) => {
     try {
       await taskAPI.deleteTask(id);
-      setTasks((prev) => prev.filter((t) => (t.id || t._id) !== id));
+      setTasks((prev) => prev.filter((t) => t.id !== id));
     } catch (err) {
       setError("Failed to delete task");
       console.error(err);
@@ -109,7 +109,7 @@ export default function TaskList() {
         ) : (
           <ul className="mt-4 space-y-3">
             {tasks.map((task) => (
-              <li key={task.id || task._id}>
+              <li key={task.id}>
                 <TaskCard task={task} onDelete={handleDeleteTask} />
               </li>
             ))}
