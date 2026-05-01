@@ -1,15 +1,13 @@
-// src/services/api.js
-// This file handles all HTTP requests to the backend
-// Axios is used for making requests with automatic headers
-
 import axios from "axios";
 
-// Create axios instance with base URL from environment
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-// Add token to every request if it exists in localStorage
+// Attach token automatically
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -18,30 +16,20 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
-// AUTH API CALLS
+// Auth APIs
 export const authAPI = {
-  // Register a new user
-  signup: (name, email, password) =>
-    API.post("/auth/signup", { name, email, password }),
-
-  // Login with email and password
   login: (email, password) =>
     API.post("/auth/login", { email, password }),
+
+  signup: (name, email, password) =>
+    API.post("/auth/signup", { name, email, password }),
 };
 
-// TASK API CALLS
+// Task APIs
 export const taskAPI = {
-  // Get all tasks for the authenticated user
-  getTasks: () =>
-    API.get("/tasks"),
-
-  // Create a new task
-  createTask: (title) =>
-    API.post("/tasks", { title }),
-
-  // Delete a task by ID
-  deleteTask: (id) =>
-    API.delete(`/tasks/${id}`),
+  getTasks: () => API.get("/tasks"),
+  createTask: (title) => API.post("/tasks", { title }),
+  deleteTask: (id) => API.delete(`/tasks/${id}`),
 };
 
 export default API;

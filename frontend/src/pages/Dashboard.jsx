@@ -1,57 +1,31 @@
 // src/pages/Dashboard.jsx
-// Dashboard page - main page where authenticated users see their tasks
 
-import { useNavigate } from "react-router-dom";
 import TaskList from "../components/TaskList";
+import Navbar from "../components/Navbar";
 
 export default function Dashboard() {
-  // Hook to navigate to different routes
-  const navigate = useNavigate();
-
-  // Get current user from localStorage
   const user = JSON.parse(localStorage.getItem("user"));
 
-  // Handle logout
-  const handleLogout = () => {
-    // Remove token and user from localStorage
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-
-    // Navigate to login page
-    navigate("/login");
-  };
-
   return (
-    <div>
-      {/* Header with user info and logout button */}
-      <div
-        style={{
-          backgroundColor: "#f8f9fa",
-          padding: "15px 20px",
-          borderBottom: "1px solid #ddd",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <h1>Welcome, {user?.name}! 👋</h1>
-        <button
-          onClick={handleLogout}
-          style={{
-            padding: "10px 20px",
-            backgroundColor: "#dc3545",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          Logout
-        </button>
-      </div>
+    <div className="min-h-screen bg-white dark:bg-gray-900 transition">
+      <Navbar />
 
-      {/* Task list component */}
-      <TaskList />
+      <main className="max-w-5xl mx-auto px-4 py-10">
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
+            Welcome back{user?.name ? `, ${user.name}` : ""} 👋
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300 mt-2">
+            Manage your tasks efficiently and stay productive.
+          </p>
+        </div>
+
+        {/* Task Container */}
+        <div className="bg-white dark:bg-gray-800 text-gray-800 dark:text-white p-6 rounded-2xl shadow-lg transition">
+          <TaskList />
+        </div>
+      </main>
     </div>
   );
 }

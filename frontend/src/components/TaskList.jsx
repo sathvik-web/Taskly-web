@@ -1,27 +1,23 @@
-// src/components/TaskList.jsx
-// Task list component - displays tasks and allows adding/deleting them
-
 import { useState, useEffect } from "react";
 import { taskAPI } from "../services/api";
+import TaskCard from "./TaskCard";
+import { Plus, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 
 export default function TaskList() {
-  // State for tasks and form
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Load tasks when component mounts
   useEffect(() => {
     fetchTasks();
   }, []);
 
-  // Fetch all tasks from backend
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const response = await taskAPI.getTasks();
-      setTasks(response.data.tasks);
+      const res = await taskAPI.getTasks();
+      setTasks(res.data.tasks || res.data || []);
     } catch (err) {
       setError("Failed to load tasks");
       console.error(err);
@@ -30,35 +26,24 @@ export default function TaskList() {
     }
   };
 
-  // Add a new task
   const handleAddTask = async (e) => {
     e.preventDefault();
-
-    if (!newTask.trim()) {
-      return;
-    }
+    if (!newTask.trim()) return;
 
     try {
-      // Create task on backend
-      const response = await taskAPI.createTask(newTask);
-
-      // Add new task to list
-      setTasks([response.data.task, ...tasks]);
-      setNewTask(""); // Clear input
+      const res = await taskAPI.createTask(newTask.trim());
+      setTasks((prev) => [res.data.task || res.data, ...prev]);
+      setNewTask("");
     } catch (err) {
       setError("Failed to create task");
       console.error(err);
     }
   };
 
-  // Delete a task
   const handleDeleteTask = async (id) => {
     try {
-      // Delete task from backend
       await taskAPI.deleteTask(id);
-
-      // Remove task from list
-      setTasks(tasks.filter((task) => task.id !== id));
+      setTasks((prev) => prev.filter((t) => (t.id || t._id) !== id));
     } catch (err) {
       setError("Failed to delete task");
       console.error(err);
@@ -66,95 +51,66 @@ export default function TaskList() {
   };
 
   return (
-    <div style={{ maxWidth: "600px", margin: "20px auto", padding: "20px" }}>
-      <h2>My Tasks</h2>
+    <div className="max-w-3xl mx-auto p-6">
+      
+      <div className="bg-white dark:bg-gray-800 text-gray-800 dark:text-white p-4 rounded-xl shadow-lg transition">
 
-      {/* Error message */}
-      {error && (
-        <div style={{ color: "red", marginBottom: "15px" }}>
-          {error}
-        </div>
-      )}
+        {/* Add Task Form */}
+        <form onSubmit={handleAddTask} className="flex gap-3">
+          
+          {/* Input with icon */}
+          <div className="relative flex-1">
+            <Plus className="absolute left-3 top-3 text-gray-400" size={18} />
+            <input
+              className="w-full pl-10 pr-3 py-3 rounded-lg border border-gray-300 dark:border-gray-600 
+              bg-white dark:bg-gray-700 
+              text-gray-800 dark:text-white 
+              placeholder-gray-400 dark:placeholder-gray-300
+              focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              placeholder="Add a new task..."
+              value={newTask}
+              onChange={(e) => setNewTask(e.target.value)}
+            />
+          </div>
 
-      {/* Add new task form */}
-      <form onSubmit={handleAddTask} style={{ marginBottom: "20px" }}>
-        <div style={{ display: "flex", gap: "10px" }}>
-          <input
-            type="text"
-            value={newTask}
-            onChange={(e) => setNewTask(e.target.value)}
-            placeholder="Add a new task..."
-            style={{
-              flex: 1,
-              padding: "10px",
-              border: "1px solid #ddd",
-              borderRadius: "4px",
-            }}
-          />
+          {/* Add button */}
           <button
             type="submit"
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "#007bff",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-            }}
+            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg 
+            hover:bg-blue-700 active:scale-95 transition"
           >
-            Add Task
+            <Plus size={16} />
+            Add
           </button>
-        </div>
-      </form>
+        </form>
 
-      {/* Loading state */}
-      {loading && <p>Loading tasks...</p>}
+        {/* Error */}
+        {error && (
+          <div className="flex items-center gap-2 mt-3 text-red-500 bg-red-100 dark:bg-red-900/20 p-2 rounded">
+            <AlertCircle size={16} />
+            {error}
+          </div>
+        )}
 
-      {/* Tasks list */}
-      <div>
-        {tasks.length === 0 ? (
-          <p style={{ textAlign: "center", color: "#999" }}>
-            No tasks yet. Add one to get started!
-          </p>
+        {/* Loading */}
+        {loading ? (
+          <div className="flex justify-center mt-6 text-gray-500">
+            <Loader2 className="animate-spin" />
+          </div>
+        ) : tasks.length === 0 ? (
+
+          /* Empty State */
+          <div className="text-center text-gray-500 dark:text-gray-300 mt-6">
+            <CheckCircle2 className="mx-auto mb-2" size={40} />
+            <p className="text-lg">No tasks yet</p>
+            <p className="text-sm">Add one to get started!</p>
+          </div>
+
         ) : (
-          <ul style={{ listStyle: "none", padding: 0 }}>
+          <ul className="mt-4 space-y-3">
             {tasks.map((task) => (
-              <li
-                key={task.id}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "12px",
-                  marginBottom: "10px",
-                  backgroundColor: "#f5f5f5",
-                  borderRadius: "4px",
-                  border: "1px solid #ddd",
-                }}
-              >
-                <div>
-                  {/* Task title */}
-                  <strong>{task.title}</strong>
-                  {/* Task creation date */}
-                  <p style={{ margin: "5px 0 0 0", fontSize: "12px", color: "#999" }}>
-                    {new Date(task.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-
-                {/* Delete button */}
-                <button
-                  onClick={() => handleDeleteTask(task.id)}
-                  style={{
-                    padding: "6px 12px",
-                    backgroundColor: "#dc3545",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Delete
-                </button>
+              <li key={task.id || task._id}>
+                <TaskCard task={task} onDelete={handleDeleteTask} />
               </li>
             ))}
           </ul>
